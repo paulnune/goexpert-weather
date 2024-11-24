@@ -9,28 +9,24 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockWeatherService é um mock da interface WeatherService.
 type MockWeatherService struct {
 	mock.Mock
 }
 
 func (m *MockWeatherService) GetWeather(location string) (map[string]float64, error) {
 	args := m.Called(location)
-	if args.Get(0) != nil {
-		return args.Get(0).(map[string]float64), args.Error(1)
-	}
-	return nil, args.Error(1)
+	return args.Get(0).(map[string]float64), args.Error(1)
 }
 
 func TestWeatherUseCase_GetWeatherByZipCode(t *testing.T) {
 	zipCodeRepo := &repository.MockZipCodeRepository{}
 	weatherService := &MockWeatherService{}
-	useCase := NewWeatherUseCase(zipCodeRepo, weatherService, "fake-key")
+	useCase := NewWeatherUseCase(zipCodeRepo, weatherService)
 
 	t.Run("success", func(t *testing.T) {
 		zipCodeRepo.On("GetLocationByZipCode", "01001000").Return(&repository.Location{
-			City:         "São Paulo",
-			Neighborhood: "Sé",
+			Localidade: "São Paulo",
+			Bairro:     "Sé",
 		}, nil)
 		weatherService.On("GetWeather", "Sé, São Paulo").Return(map[string]float64{
 			"temp_C": 25.0,
@@ -50,23 +46,23 @@ func TestWeatherUseCase_GetWeatherByZipCode(t *testing.T) {
 	})
 
 	t.Run("zip code not found", func(t *testing.T) {
-		zipCodeRepo.On("GetLocationByZipCode", "00000000").Return(nil, errors.New("zipcode not found"))
+		zipCodeRepo.On("GetLocationByZipCode", "00000000").Return(nil, errors.New("CEP não encontrado"))
 
 		_, err := useCase.GetWeatherByZipCode("00000000")
 
 		assert.Error(t, err)
-		assert.Equal(t, "zipcode not found", err.Error())
+		assert.Equal(t, "CEP não encontrado", err.Error())
 
 		zipCodeRepo.AssertExpectations(t)
 	})
 
 	t.Run("invalid zip code", func(t *testing.T) {
-		zipCodeRepo.On("GetLocationByZipCode", "invalid").Return(nil, errors.New("invalid zipcode"))
+		zipCodeRepo.On("GetLocationByZipCode", "invalid").Return(nil, errors.New("CEP não encontrado"))
 
 		_, err := useCase.GetWeatherByZipCode("invalid")
 
 		assert.Error(t, err)
-		assert.Equal(t, "invalid zipcode", err.Error())
+		assert.Equal(t, "CEP não encontrado", err.Error())
 
 		zipCodeRepo.AssertExpectations(t)
 	})

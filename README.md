@@ -116,7 +116,7 @@ curl "https://goexpert-weather-206501290178.us-central1.run.app/weather?cep=0100
 
 2. Execute os testes:
    ```bash
-   go test ./...
+   go test ./internal/repository/... ./internal/usecase/... -v
    ```
 
 3. Todos os testes devem passar com sucesso.

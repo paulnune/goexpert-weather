@@ -2,7 +2,6 @@ package repository
 
 import "github.com/stretchr/testify/mock"
 
-// MockZipCodeRepository é um mock da interface ZipCodeRepository.
 type MockZipCodeRepository struct {
 	mock.Mock
 }

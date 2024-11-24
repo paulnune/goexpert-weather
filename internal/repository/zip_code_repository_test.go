@@ -11,8 +11,8 @@ func TestGetLocationByZipCode_Success(t *testing.T) {
 
 	location, err := repo.GetLocationByZipCode("01001000")
 	assert.NoError(t, err)
-	assert.Equal(t, "São Paulo", location.City)
-	assert.Equal(t, "Sé", location.Neighborhood)
+	assert.Equal(t, "São Paulo", location.Localidade)
+	assert.Equal(t, "Sé", location.Bairro)
 }
 
 func TestGetLocationByZipCode_NotFound(t *testing.T) {
