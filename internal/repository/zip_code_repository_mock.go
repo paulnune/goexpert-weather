@@ -2,12 +2,11 @@ package repository
 
 import "github.com/stretchr/testify/mock"
 
-// MockZipCodeRepository implementa ZipCodeRepository
+// MockZipCodeRepository é um mock da interface ZipCodeRepository.
 type MockZipCodeRepository struct {
 	mock.Mock
 }
 
-// GetLocationByZipCode é o mock do método
 func (m *MockZipCodeRepository) GetLocationByZipCode(zipCode string) (*Location, error) {
 	args := m.Called(zipCode)
 	if args.Get(0) != nil {

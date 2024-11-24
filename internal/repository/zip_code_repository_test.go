@@ -20,7 +20,7 @@ func TestGetLocationByZipCode_NotFound(t *testing.T) {
 
 	_, err := repo.GetLocationByZipCode("00000000")
 	assert.Error(t, err)
-	assert.Equal(t, "não foi possível processar os dados do CEP: json: cannot unmarshal string into Go struct field .erro of type bool", err.Error())
+	assert.Equal(t, "CEP não encontrado", err.Error())
 }
 
 func TestGetLocationByZipCode_InvalidZipCode(t *testing.T) {

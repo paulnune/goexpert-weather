@@ -7,19 +7,19 @@ import (
 	"github.com/paulnune/goexpert-weather/internal/repository"
 )
 
-// WeatherService define a interface para o serviço de clima
+// WeatherService define a interface para obter dados climáticos.
 type WeatherService interface {
 	GetWeather(location string) (map[string]float64, error)
 }
 
-// WeatherUseCase define o caso de uso
+// WeatherUseCase define o caso de uso para obter clima por CEP.
 type WeatherUseCase struct {
 	zipCodeRepo    repository.ZipCodeRepository
 	weatherService WeatherService
 	apiKey         string
 }
 
-// NewWeatherUseCase cria uma nova instância do caso de uso
+// NewWeatherUseCase cria uma nova instância do caso de uso.
 func NewWeatherUseCase(zipCodeRepo repository.ZipCodeRepository, weatherService WeatherService, apiKey string) *WeatherUseCase {
 	return &WeatherUseCase{
 		zipCodeRepo:    zipCodeRepo,

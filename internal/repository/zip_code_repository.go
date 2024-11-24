@@ -8,33 +8,33 @@ import (
 	"net/http"
 )
 
-// ZipCodeRepository é o repositório responsável por buscar dados do CEP
+// ZipCodeRepository é a implementação da interface para buscar dados do CEP.
 type ZipCodeRepository struct{}
 
-// NewZipCodeRepository cria uma nova instância do repositório de CEP
+// NewZipCodeRepository cria uma nova instância de ZipCodeRepository.
 func NewZipCodeRepository() *ZipCodeRepository {
 	return &ZipCodeRepository{}
 }
 
-// Location representa os dados retornados pela API de CEP
+// Location representa os dados retornados pela API ViaCEP.
 type Location struct {
 	City         string `json:"localidade"`
 	Neighborhood string `json:"bairro"`
 }
 
-// GetLocationByZipCode busca informações de localização usando o CEP
+// GetLocationByZipCode busca informações de localização pelo CEP.
 func (r *ZipCodeRepository) GetLocationByZipCode(zipCode string) (*Location, error) {
 	// URL da API ViaCEP
 	url := fmt.Sprintf("https://viacep.com.br/ws/%s/json/", zipCode)
 
-	// Realiza a requisição
+	// Faz a requisição
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("não foi possível buscar os dados do CEP: %w", err)
 	}
 	defer resp.Body.Close()
 
-	// Verifica o status da resposta
+	// Verifica o status HTTP da resposta
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.New("CEP não encontrado")
 	}
@@ -52,12 +52,12 @@ func (r *ZipCodeRepository) GetLocationByZipCode(zipCode string) (*Location, err
 		Erro       bool   `json:"erro"`
 	}
 
-	// Faz o unmarshal dos dados JSON
+	// Faz o unmarshal do JSON
 	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, fmt.Errorf("não foi possível processar os dados do CEP: %w", err)
 	}
 
-	// Verifica se a API indicou erro no CEP
+	// Verifica se a API retornou erro
 	if data.Erro {
 		return nil, errors.New("CEP não encontrado")
 	}

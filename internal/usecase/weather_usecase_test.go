@@ -5,23 +5,33 @@ import (
 	"testing"
 
 	"github.com/paulnune/goexpert-weather/internal/repository"
-	"github.com/paulnune/goexpert-weather/internal/services"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
+
+// MockWeatherService é um mock da interface WeatherService.
+type MockWeatherService struct {
+	mock.Mock
+}
+
+func (m *MockWeatherService) GetWeather(location string) (map[string]float64, error) {
+	args := m.Called(location)
+	if args.Get(0) != nil {
+		return args.Get(0).(map[string]float64), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
 
 func TestWeatherUseCase_GetWeatherByZipCode(t *testing.T) {
 	zipCodeRepo := &repository.MockZipCodeRepository{}
-	weatherService := &services.MockWeatherService{}
+	weatherService := &MockWeatherService{}
 	useCase := NewWeatherUseCase(zipCodeRepo, weatherService, "fake-key")
 
 	t.Run("success", func(t *testing.T) {
-		t.Skip("Ignorando temporariamente devido a falhas no mock do serviço.")
-
 		zipCodeRepo.On("GetLocationByZipCode", "01001000").Return(&repository.Location{
 			City:         "São Paulo",
 			Neighborhood: "Sé",
 		}, nil)
-
 		weatherService.On("GetWeather", "Sé, São Paulo").Return(map[string]float64{
 			"temp_C": 25.0,
 			"temp_F": 77.0,
