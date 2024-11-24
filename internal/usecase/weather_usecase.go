@@ -5,29 +5,24 @@ import (
 	"fmt"
 
 	"github.com/paulnune/goexpert-weather/internal/repository"
+	"github.com/paulnune/goexpert-weather/internal/services"
 )
 
-// WeatherService define a interface para obter dados climáticos.
-type WeatherService interface {
-	GetWeather(location string) (map[string]float64, error)
-}
-
-// WeatherUseCase define o caso de uso para obter clima por CEP.
+// WeatherUseCase define o caso de uso para obter o clima por CEP
 type WeatherUseCase struct {
 	zipCodeRepo    repository.ZipCodeRepository
-	weatherService WeatherService
-	apiKey         string
+	weatherService services.WeatherService
 }
 
-// NewWeatherUseCase cria uma nova instância do caso de uso.
-func NewWeatherUseCase(zipCodeRepo repository.ZipCodeRepository, weatherService WeatherService, apiKey string) *WeatherUseCase {
+// NewWeatherUseCase cria uma nova instância de WeatherUseCase
+func NewWeatherUseCase(zipCodeRepo repository.ZipCodeRepository, weatherService services.WeatherService) *WeatherUseCase {
 	return &WeatherUseCase{
 		zipCodeRepo:    zipCodeRepo,
 		weatherService: weatherService,
-		apiKey:         apiKey,
 	}
 }
 
+// GetWeatherByZipCode obtém o clima com base no CEP fornecido
 func (u *WeatherUseCase) GetWeatherByZipCode(zipCode string) (map[string]float64, error) {
 	location, err := u.zipCodeRepo.GetLocationByZipCode(zipCode)
 	if err != nil {
@@ -35,12 +30,12 @@ func (u *WeatherUseCase) GetWeatherByZipCode(zipCode string) (map[string]float64
 	}
 
 	var query string
-	if location.Neighborhood != "" && location.City != "" {
-		query = fmt.Sprintf("%s, %s", location.Neighborhood, location.City)
-	} else if location.City != "" {
-		query = location.City
+	if location.Bairro != "" && location.Localidade != "" {
+		query = fmt.Sprintf("%s, %s", location.Bairro, location.Localidade)
+	} else if location.Localidade != "" {
+		query = location.Localidade
 	} else {
-		return nil, errors.New("could not determine location for the given zip code")
+		return nil, errors.New("não foi possível determinar a localização para o CEP fornecido")
 	}
 
 	return u.weatherService.GetWeather(query)

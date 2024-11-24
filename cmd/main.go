@@ -1,40 +1,53 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
-	"github.com/gorilla/mux"
-	"github.com/paulnune/goexpert-weather/configs"
-	"github.com/paulnune/goexpert-weather/internal/delivery/rest"
 	"github.com/paulnune/goexpert-weather/internal/repository"
 	"github.com/paulnune/goexpert-weather/internal/services"
 	"github.com/paulnune/goexpert-weather/internal/usecase"
 )
 
 func main() {
-	// Carrega configurações
-	configs.LoadConfig()
+	// Verifica se a API key está definida no ambiente
+	apiKey := os.Getenv("WEATHER_API_KEY")
+	if apiKey == "" {
+		log.Fatal("A variável de ambiente WEATHER_API_KEY não está definida")
+	}
 
-	// Inicializa repositório e serviço
+	// Inicializa os repositórios e serviços
 	zipCodeRepo := repository.NewZipCodeRepository()
-	weatherService := services.NewWeatherService() // Ajuste para criar uma implementação real
+	weatherService := services.NewWeatherService(apiKey)
+	weatherUseCase := usecase.NewWeatherUseCase(zipCodeRepo, weatherService)
 
-	// Inicializa caso de uso com o repositório, serviço e chave de API
-	handler := rest.NewHandler(usecase.NewWeatherUseCase(zipCodeRepo, weatherService, configs.APIKey))
+	// Define a rota para a API
+	http.HandleFunc("/weather", func(w http.ResponseWriter, r *http.Request) {
+		zipCode := r.URL.Query().Get("cep") // Altere para capturar "cep" corretamente
+		if zipCode == "" {
+			http.Error(w, "O parâmetro 'cep' é obrigatório", http.StatusBadRequest)
+			return
+		}
 
-	// Configura roteador
-	router := mux.NewRouter()
+		// Obtém o clima pelo CEP
+		weather, err := weatherUseCase.GetWeatherByZipCode(zipCode)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	// Define rotas
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Servidor está funcionando"))
-	}).Methods(http.MethodGet)
+		// Retorna a resposta como JSON
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(weather)
+	})
 
-	router.HandleFunc("/weather", handler.GetWeather).Methods(http.MethodGet)
-
-	// Inicia o servidor
-	log.Println("Servidor iniciado na porta 8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	// Inicializa o servidor
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Porta padrão para desenvolvimento local
+	}
+	log.Printf("Servidor rodando na porta %s...", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
