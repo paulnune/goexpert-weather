@@ -131,3 +131,5 @@ curl "https://goexpert-weather-206501290178.us-central1.run.app/weather?cep=0100
 ---
 
 ## 🎉 Agradecimentos
+
+Este repositório foi desenvolvido com muita dedicação para a **Pós GoExpert 2024**. Agradeço à equipe da **FullCycle** por proporcionar uma experiência incrível de aprendizado! 🚀
