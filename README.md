@@ -118,3 +118,16 @@ curl "https://goexpert-weather-206501290178.us-central1.run.app/weather?cep=0100
    ```bash
    go test ./internal/repository/... ./internal/usecase/... -v
    ```
+---
+
+## 👨‍💻 Autor
+
+**Paulo Henrique Nunes Vanderley**  
+- 🌐 [Site Pessoal](https://www.paulonunes.dev/)  
+- 🌐 [GitHub](https://github.com/paulnune)  
+- ✉️ Email: [paulo.nunes@live.de](mailto:paulo.nunes@live.de)  
+- 🚀 Aluno da Pós **GoExpert 2024** pela [FullCycle](https://fullcycle.com.br)
+
+---
+
+## 🎉 Agradecimentos
